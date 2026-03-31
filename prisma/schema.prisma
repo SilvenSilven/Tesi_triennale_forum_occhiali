@@ -1,0 +1,230 @@
+// Prisma schema for Fashion Enthusiasts forum
+// Designed for Neon PostgreSQL
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// ─── Forum Settings ──────────────────────────────────────────
+model ForumSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("forum_settings")
+}
+
+// ─── Users ───────────────────────────────────────────────────
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  avatar    String?
+  bio       String?
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  threads Thread[]
+  posts   Post[]
+  reviews Review[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+// ─── Categories / Subforums ──────────────────────────────────
+model Category {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
+  description String?
+  icon        String?
+  sortOrder   Int            @default(0) @map("sort_order")
+  status      CategoryStatus @default(DISABLED)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  threads  Thread[]
+  products Product[]
+
+  @@map("categories")
+}
+
+enum CategoryStatus {
+  ACTIVE
+  DISABLED
+  COMING_SOON
+  ARCHIVED
+}
+
+// ─── Threads ─────────────────────────────────────────────────
+model Thread {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String
+  isPinned  Boolean  @default(false) @map("is_pinned")
+  isLocked  Boolean  @default(false) @map("is_locked")
+  views     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authorId   String   @map("author_id")
+  author     User     @relation(fields: [authorId], references: [id])
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  posts Post[]
+  tags  TagOnThread[]
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("threads")
+}
+
+// ─── Posts (replies) ─────────────────────────────────────────
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [id])
+  threadId String @map("thread_id")
+  thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  parentId String? @map("parent_id")
+  parent   Post?   @relation("PostReplies", fields: [parentId], references: [id])
+  replies  Post[]  @relation("PostReplies")
+
+  @@index([threadId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+// ─── Tags ────────────────────────────────────────────────────
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  threads  TagOnThread[]
+  products TagOnProduct[]
+
+  @@map("tags")
+}
+
+model TagOnThread {
+  threadId String @map("thread_id")
+  thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  tagId    String @map("tag_id")
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, tagId])
+  @@map("tags_on_threads")
+}
+
+model TagOnProduct {
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tagId     String  @map("tag_id")
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@map("tags_on_products")
+}
+
+// ─── Brands ──────────────────────────────────────────────────
+model Brand {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  logo        String?
+  website     String?
+  country     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("brands")
+}
+
+// ─── Products ────────────────────────────────────────────────
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  imageUrl    String? @map("image_url")
+  price       Float?
+  currency    String  @default("EUR")
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  brandId    String   @map("brand_id")
+  brand      Brand    @relation(fields: [brandId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reviews      Review[]
+  priceHistory ProductPriceHistory[]
+  tags         TagOnProduct[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@map("products")
+}
+
+// ─── Product Price History ───────────────────────────────────
+model ProductPriceHistory {
+  id        String   @id @default(cuid())
+  price     Float
+  currency  String   @default("EUR")
+  source    String?
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([recordedAt])
+  @@map("product_price_history")
+}
+
+// ─── Reviews ─────────────────────────────────────────────────
+model Review {
+  id        String   @id @default(cuid())
+  title     String?
+  content   String
+  rating    Int      // 1-5
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authorId  String  @map("author_id")
+  author    User    @relation(fields: [authorId], references: [id])
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([authorId])
+  @@map("reviews")
+}
