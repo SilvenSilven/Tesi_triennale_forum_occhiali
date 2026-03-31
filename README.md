@@ -7,7 +7,7 @@ Un forum/community dedicato al mondo della moda, con focus operativo sulla sezio
 
 ---
 
-## Panoramica del Progetto
+## Panoramica del Progetto.
 
 Fashion Enthusiasts è una piattaforma forum-style che simula una community italiana di appassionati di moda. Il sito:
 
