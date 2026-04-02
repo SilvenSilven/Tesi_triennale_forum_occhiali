@@ -19,42 +19,52 @@ export default async function CercaPage({ searchParams }: Props) {
   const currentPage = parseInt(page ?? "1", 10);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumb
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Cerca" },
-        ]}
-      />
-
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Cerca nel Forum</h1>
-        <SearchBar placeholder="Cerca discussioni, prodotti, brand, recensioni..." action="/cerca" />
-      </header>
-
-      {/* Search results */}
-      <section data-section="search-results" aria-label="Risultati ricerca">
-        {query ? (
-          <>
-            <p className="text-sm text-gray-500 mb-6">
-              Risultati per: <strong className="text-gray-700">&quot;{query}&quot;</strong>
-            </p>
-            <EmptyState
-              icon="🔍"
-              title="Nessun risultato trovato"
-              message={`Nessun contenuto corrisponde alla ricerca "${query}". I contenuti verranno aggiunti in una fase successiva.`}
-            />
-          </>
-        ) : (
-          <EmptyState
-            icon="🔍"
-            title="Effettua una ricerca"
-            message="Inserisci un termine di ricerca per trovare discussioni, prodotti, brand e recensioni nel forum."
+    <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white pb-24">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 pb-24 min-h-[calc(100vh-200px)]">
+        <div className="mb-16">
+          <Breadcrumb
+            items={[
+              { label: "INDEX", href: "/" },
+              { label: "SEARCH" },
+            ]}
           />
-        )}
-      </section>
+        </div>
 
-      <Pagination currentPage={currentPage} totalPages={1} basePath={`/cerca?q=${encodeURIComponent(query)}`} />
-    </div>
+        <header className="mb-16 text-center">
+          <h1 className="text-4xl md:text-6xl font-light tracking-tight text-zinc-900 mb-8 select-none">
+            Ricerca
+          </h1>
+          <div className="max-w-2xl mx-auto">
+            <SearchBar placeholder="Cerca discussioni, modelli o brand..." action="/cerca" />
+          </div>
+        </header>
+
+        {/* Search results */}
+        <section data-section="search-results" aria-label="Risultati ricerca" className="border-t border-zinc-200 pt-10">
+          {query ? (
+            <>
+              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-8 text-center">
+                Query: <strong className="text-zinc-900">{query}</strong>
+              </p>
+              <EmptyState
+                icon="—"
+                title="NESSUN RISULTATO"
+                message={`L'archivio non contiene corrispondenze per "${query}". Espandi la ricerca o torna all'indice.`}
+              />
+            </>
+          ) : (
+            <EmptyState
+              icon="—"
+              title="INIZIA LA RICERCA"
+              message="Inserisci un termine per interrogare l'archivio del forum."
+            />
+          )}
+        </section>
+
+        <div className="mt-12 flex justify-between items-center">
+          <Pagination currentPage={currentPage} totalPages={1} basePath={`/cerca?q=${encodeURIComponent(query)}`} />
+        </div>
+      </div>
+    </main>
   );
 }

@@ -1,60 +1,64 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 mt-auto" role="contentinfo">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+    <footer className="bg-white border-t border-zinc-200 mt-auto selection:bg-zinc-900 selection:text-white" role="contentinfo">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-24">
+          
+          {/* Brand - Span 5 cols */}
+          <div className="md:col-span-5">
+            <h3 className="text-sm font-mono tracking-widest uppercase text-zinc-900 mb-6">
               Fashion Enthusiasts
             </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              La community italiana dedicata alla moda e allo stile.
-              Uno spazio per appassionati, recensioni e confronti.
+            <p className="text-sm font-light leading-relaxed text-zinc-500 max-w-sm">
+              La community italiana dedicata alla moda e allo stile.<br />
+              Spazio curato per appassionati, approfondimenti su archivi di stile ed editoriali di alta moda.
             </p>
           </div>
 
-          {/* Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Sezioni
+          {/* Spacer */}
+          <div className="hidden md:block md:col-span-2"></div>
+
+          {/* Links - Span 2 cols */}
+          <div className="md:col-span-2">
+            <h3 className="text-[10px] font-mono tracking-widest uppercase text-zinc-900 mb-6 border-b border-zinc-100 pb-4">
+              Directory
             </h3>
-            <ul className="mt-2 space-y-1">
+            <ul className="space-y-4">
               <li>
-                <a href="/categorie" className="text-sm text-gray-500 hover:text-gray-700">
-                  Tutte le Categorie
-                </a>
+                <Link href="/categorie" className="text-xs font-light text-zinc-500 hover:text-zinc-900 transition-colors uppercase tracking-wider">
+                  Archive
+                </Link>
               </li>
               <li>
-                <a href="/occhiali-da-sole" className="text-sm text-gray-500 hover:text-gray-700">
-                  Occhiali da Sole
-                </a>
+                <Link href="/occhiali-da-sole" className="text-xs font-light text-zinc-500 hover:text-zinc-900 transition-colors uppercase tracking-wider">
+                  Sunglasses
+                </Link>
               </li>
               <li>
-                <a href="/cerca" className="text-sm text-gray-500 hover:text-gray-700">
-                  Cerca nel Forum
-                </a>
+                <Link href="/cerca" className="text-xs font-light text-zinc-500 hover:text-zinc-900 transition-colors uppercase tracking-wider">
+                  Search
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Info */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Informazioni
+          {/* Info - Span 3 cols */}
+          <div className="md:col-span-3">
+            <h3 className="text-[10px] font-mono tracking-widest uppercase text-zinc-900 mb-6 border-b border-zinc-100 pb-4">
+              Information
             </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Questo è un progetto accademico fittizio creato per una tesi di laurea in Marketing.
-              Tutti i contenuti, i brand e i prodotti sono immaginari.
+            <p className="text-[11px] font-light leading-relaxed text-zinc-500 max-w-xs">
+              Progetto accademico creato per tesi in marketing. Tutti i contenuti e riferimenti sono fittizi o finalizzati a uso didattico.
             </p>
           </div>
+          
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-400 text-center">
-            © {new Date().getFullYear()} Fashion Enthusiasts — Progetto accademico fittizio.
-            Nessun brand reale è associato a questa piattaforma.
-          </p>
+        <div className="flex flex-col md:flex-row items-center justify-between border-t border-zinc-200 pt-8 text-[10px] font-mono uppercase tracking-widest text-zinc-400">
+          <p>© {new Date().getFullYear()} Fashion Enthusiasts.</p>
+          <p className="mt-4 md:mt-0">Academic Project Only / No Real Brands</p>
         </div>
       </div>
     </footer>

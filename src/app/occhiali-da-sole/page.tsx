@@ -21,97 +21,94 @@ export default async function OcchialiDaSolePage({ searchParams }: Props) {
   const { threads, total, pages } = await getThreadsForCategory("occhiali-da-sole", page);
 
   return (
-    <main className="min-h-screen bg-[#faf9f5] text-zinc-900 selection:bg-zinc-900 selection:text-[#faf9f5]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
-        
-        {/* Navigation */}
-        <div className="flex items-center justify-between mb-16 border-b-2 border-zinc-900 pb-4">
-          <Breadcrumb
-            items={[
-              { label: "INDEX", href: "/" },
-              { label: "CATEGORIES", href: "/categorie" },
-              { label: "SUNGLASSES" },
-            ]}
-          />
-          <div className="text-xs font-bold tracking-widest uppercase">
-            {total > 0 ? `${total} Discussions` : "Archive"}
-          </div>
-        </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="mb-10">
+        <Breadcrumb
+          items={[
+            { label: "INDEX", href: "/" },
+            { label: "CATEGORIES", href: "/categorie" },
+            { label: "SUNGLASSES" },
+          ]}
+        />
+      </div>
 
-        {/* Header - Editorial Style */}
-        <header className="mb-20 max-w-4xl">
-          <h1 className="text-5xl md:text-8xl font-serif font-medium leading-[0.9] tracking-tight text-zinc-900 mb-8 uppercase">
-            Occhiali<br/>da Sole.
+      {/* Header - Refined Editorial Style */}
+      <header className="mb-12 pb-8 border-b border-zinc-200 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl md:text-5xl font-light tracking-tight text-zinc-900 mb-4 select-none">
+            Occhiali da Sole
           </h1>
-          <p className="text-lg md:text-xl font-light text-zinc-600 max-w-2xl leading-relaxed">
-            Esplora recensioni curatoriali, archivi di stile, discussioni esclusive e consigli pratici sui feticci per eccellenza dell'estate e dell'alta moda.
+          <p className="text-sm md:text-base text-zinc-500 leading-relaxed font-light">
+            Esplora discussioni, archivi di stile, recensioni esclusive e consigli pratici sui modelli d'alta moda e design.
           </p>
-        </header>
+        </div>
+        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400 shrink-0">
+          {total > 0 ? `${total} Threads` : "Archive"}
+        </div>
+      </header>
 
-        {/* Thread list */}
-        <section data-section="thread-list" aria-label="Lista discussioni">
-          {threads.length === 0 ? (
-            <div className="py-24 border-y-2 border-zinc-900">
-              <EmptyState
-                icon="👁️"
-                title="ARCHIVIO VUOTO"
-                message="Nessuna discussione pubblicata al momento. Il prossimo pezzo arriverà a breve."
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col gap-6">
-              {threads.map((thread) => (
-                <Link
-                  key={thread.id}
-                  href={`/occhiali-da-sole/thread/${thread.slug}`}
-                  className="group relative block border-2 border-zinc-900 bg-white p-6 md:p-8 hover:-translate-y-1 hover:shadow-[8px_8px_0px_#18181b] transition-all duration-300 ease-out"
-                >
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                    <div className="flex-1 min-w-0">
-                      
-                      {/* Meta */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-[11px] font-bold tracking-widest uppercase text-zinc-500">
-                        <span className="text-zinc-900 px-2 py-1 bg-zinc-100">{thread.author.username}</span>
-                        <span>{formatDateTime(thread.createdAt)}</span>
-                        {thread.models.length > 0 && (
-                          <span className="text-amber-700 before:content-['•'] before:mr-4 before:text-zinc-300">{thread.models.join(" / ")}</span>
-                        )}
-                      </div>
+      {/* Thread list */}
+      <section data-section="thread-list" aria-label="Lista discussioni">
+        {threads.length === 0 ? (
+          <div className="py-24">
+            <EmptyState
+              icon="✧"
+              title="NO THREADS YET"
+              message="Nessuna discussione pubblicata al momento in questa sezione."
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col border-t border-zinc-200">
+            {threads.map((thread) => (
+              <Link
+                key={thread.id}
+                href={`/occhiali-da-sole/thread/${thread.slug}`}
+                className="group block border-b border-zinc-200 hover:bg-zinc-50 transition-all duration-300 ease-out"
+              >
+                <div className="py-6 px-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8">
+                  <div className="flex-1 min-w-0">
+                    {/* Title */}
+                    <h2 className="text-lg md:text-xl font-medium text-zinc-900 tracking-tight leading-snug group-hover:text-zinc-600 transition-colors mb-2">
+                      {thread.title}
+                    </h2>
+                    
+                    {/* Excerpt */}
+                    <p className="text-sm text-zinc-500 line-clamp-1 mb-3 font-light">
+                      {thread.content}
+                    </p>
 
-                      {/* Title */}
-                      <h2 className="text-3xl md:text-4xl font-serif font-medium text-zinc-900 tracking-tight leading-tight group-hover:underline decoration-2 underline-offset-4 mb-4">
-                        {thread.title}
-                      </h2>
-                      
-                      {/* Excerpt */}
-                      <p className="text-zinc-600 leading-relaxed line-clamp-2 md:line-clamp-3 text-base md:text-lg max-w-3xl">
-                        {thread.content}
-                      </p>
-                    </div>
-
-                    {/* Stats Widget */}
-                    <div className="flex flex-row md:flex-col gap-4 md:gap-2 shrink-0 border-t-2 md:border-t-0 md:border-l-2 border-zinc-100 pt-4 md:pt-0 md:pl-6 md:w-32 justify-end md:justify-start">
-                      <div className="flex flex-col">
-                        <span className="text-3xl font-serif font-bold text-zinc-900">{thread._count.posts}</span>
-                        <span className="text-[10px] font-bold tracking-widest uppercase text-zinc-400">Replies</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xl font-serif font-bold text-zinc-700">{thread.views}</span>
-                        <span className="text-[10px] font-bold tracking-widest uppercase text-zinc-400">Views</span>
-                      </div>
+                    {/* Meta */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                      <span className="text-zinc-700 font-medium">@{thread.author.username}</span>
+                      <span>{formatDateTime(thread.createdAt)}</span>
+                      {thread.models.length > 0 && (
+                        <span className="text-zinc-800 before:content-['—'] before:mr-4 before:text-zinc-300">{thread.models.join(", ")}</span>
+                      )}
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
 
-        {/* Pagination */}
-        <div className="mt-16 pt-8 border-t-2 border-zinc-900 flex justify-between items-center">
-          <Pagination currentPage={page} totalPages={pages} basePath="/occhiali-da-sole" />
-        </div>
+                  {/* Stats */}
+                  <div className="flex items-center gap-6 shrink-0 md:border-l border-zinc-200 md:pl-8 text-right">
+                    <div className="flex flex-col items-end">
+                      <span className="text-base font-medium text-zinc-900">{thread._count.posts}</span>
+                      <span className="text-[9px] font-mono tracking-widest uppercase text-zinc-400">Replies</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-base font-medium text-zinc-700">{thread.views}</span>
+                      <span className="text-[9px] font-mono tracking-widest uppercase text-zinc-400">Views</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Pagination */}
+      <div className="mt-12 flex justify-between items-center">
+        <Pagination currentPage={page} totalPages={pages} basePath="/occhiali-da-sole" />
       </div>
-    </main>
+    </div>
   );
 }

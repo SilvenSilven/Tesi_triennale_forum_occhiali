@@ -10,29 +10,39 @@ export const metadata: Metadata = {
 
 export default function CategoriePage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumb
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Categorie" },
-        ]}
-      />
-
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Categorie del Forum</h1>
-        <p className="text-sm text-gray-500">
-          Esplora tutte le sezioni della community Fashion Enthusiasts.
-          Le sezioni contrassegnate come &quot;In arrivo&quot; saranno disponibili prossimamente.
-        </p>
-      </header>
-
-      <section data-section="category-directory">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {CATEGORIES.map((cat) => (
-            <CategoryCard key={cat.slug} category={cat} />
-          ))}
+    <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 pb-24 border-x border-zinc-100 min-h-[calc(100vh-200px)]">
+        <div className="mb-12 border-b border-zinc-200 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="max-w-xl">
+             <Breadcrumb
+               items={[
+                 { label: "Index", href: "/" },
+                 { label: "Categories" },
+               ]}
+             />
+             <h1 className="text-3xl md:text-5xl font-light tracking-tight text-zinc-900 mt-6 select-none">
+               Archives
+             </h1>
+             <p className="text-sm font-light text-zinc-500 mt-4 leading-relaxed">
+               Esplora tutte le sezioni di Fashion Enthusiasts.<br/>
+               I dipartimenti contrassegnati come &quot;In arrivo&quot; sono ancora in allestimento per l'apertura.
+             </p>
+          </div>
+          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400 shrink-0">
+             {CATEGORIES.length} Directory
+          </div>
         </div>
-      </section>
-    </div>
+
+        <section data-section="category-directory" aria-label="Directory Categorie">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-zinc-200 border border-zinc-200">
+            {CATEGORIES.map((cat) => (
+              <div key={cat.slug} className="bg-white">
+                <CategoryCard category={cat} />
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }

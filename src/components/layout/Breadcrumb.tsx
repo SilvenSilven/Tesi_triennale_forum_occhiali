@@ -8,7 +8,7 @@ export type BreadcrumbItem = {
 export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className="flex flex-wrap items-center gap-1 text-sm text-gray-500" itemScope itemType="https://schema.org/BreadcrumbList">
+      <ol className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-zinc-400" itemScope itemType="https://schema.org/BreadcrumbList">
         {items.map((item, index) => (
           <li
             key={index}
@@ -17,17 +17,17 @@ export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
             itemScope
             itemType="https://schema.org/ListItem"
           >
-            {index > 0 && <span className="mx-1 text-gray-300">/</span>}
+            {index > 0 && <span className="mx-2 text-zinc-300">/</span>}
             {item.href ? (
               <Link
                 href={item.href}
-                className="hover:text-gray-700 transition-colors"
+                className="hover:text-zinc-900 transition-colors"
                 itemProp="item"
               >
                 <span itemProp="name">{item.label}</span>
               </Link>
             ) : (
-              <span className="text-gray-900 font-medium" itemProp="name">
+              <span className="text-zinc-900 font-medium" itemProp="name">
                 {item.label}
               </span>
             )}

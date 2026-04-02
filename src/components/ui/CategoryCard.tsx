@@ -13,43 +13,48 @@ export default function CategoryCard({ category, threadCount = 0, postCount = 0 
 
   const content = (
     <div
-      className={`relative rounded-lg border p-5 transition-all ${
+      className={`relative p-8 transition-all h-full ${
         isActive
-          ? "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm cursor-pointer"
-          : "border-gray-100 bg-gray-50 opacity-75 cursor-not-allowed"
+          ? "bg-white hover:bg-zinc-50 cursor-pointer"
+          : "bg-zinc-50 cursor-not-allowed opacity-60"
       }`}
       data-category={category.slug}
       data-status={category.status}
     >
-      <div className="flex items-start gap-4">
-        {/* Icon */}
-        <span className="text-3xl flex-shrink-0" aria-hidden="true">
-          {category.icon}
-        </span>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className={`text-base font-semibold ${isActive ? "text-gray-900" : "text-gray-400"}`}>
-              {category.name}
-            </h3>
-            <StatusBadge status={category.status} />
+      <div className="flex flex-col h-full justify-between gap-12">
+        {/* Top Info */}
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0 pr-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-2xl font-light tracking-tight ${isActive ? "text-zinc-900" : "text-zinc-400"}`}>
+                {category.name}
+              </h3>
+            </div>
+            <p className={`text-sm font-light leading-relaxed max-w-sm ${isActive ? "text-zinc-500" : "text-zinc-400"}`}>
+              {category.description}
+            </p>
           </div>
-          <p className={`text-sm line-clamp-2 ${isActive ? "text-gray-600" : "text-gray-400"}`}>
-            {category.description}
-          </p>
-
-          {/* Placeholder stats */}
-          <div className="flex gap-4 mt-3 text-xs text-gray-400">
-            <span data-stat="threads">{threadCount} discussioni</span>
-            <span data-stat="posts">{postCount} messaggi</span>
+          
+          <div className="flex flex-col items-end gap-2">
+            <span className="text-3xl font-light text-zinc-200 select-none" aria-hidden="true">
+              {category.icon}
+            </span>
+            <div className="mt-2 scale-75 origin-top-right">
+              <StatusBadge status={category.status} />
+            </div>
           </div>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-6 text-[10px] font-mono uppercase tracking-widest text-zinc-400 border-t border-zinc-200 pt-6">
+          <span data-stat="threads"><span className="text-zinc-900 font-medium mr-2">{threadCount}</span>Threads</span>
+          <span data-stat="posts"><span className="text-zinc-900 font-medium mr-2">{postCount}</span>Replies</span>
         </div>
       </div>
 
       {/* Disabled overlay label */}
       {!isActive && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <span className="sr-only">Sezione non ancora disponibile</span>
         </div>
       )}
@@ -58,14 +63,14 @@ export default function CategoryCard({ category, threadCount = 0, postCount = 0 
 
   if (isActive) {
     return (
-      <Link href={`/${category.slug}`} className="block">
+      <Link href={`/${category.slug}`} className="block h-full">
         {content}
       </Link>
     );
   }
 
   return (
-    <div aria-disabled="true" role="link" tabIndex={-1}>
+    <div aria-disabled="true" role="link" tabIndex={-1} className="h-full">
       {content}
     </div>
   );
