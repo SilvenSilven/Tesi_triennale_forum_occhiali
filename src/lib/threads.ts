@@ -1,5 +1,28 @@
 import { prisma } from "./prisma";
 
+export async function getCategoryStats(): Promise<
+  Record<string, { threadCount: number; postCount: number }>
+> {
+  const categories = await prisma.category.findMany({
+    select: {
+      slug: true,
+      _count: { select: { threads: true } },
+      threads: {
+        select: { _count: { select: { posts: true } } },
+      },
+    },
+  });
+
+  const result: Record<string, { threadCount: number; postCount: number }> = {};
+  for (const cat of categories) {
+    result[cat.slug] = {
+      threadCount: cat._count.threads,
+      postCount: cat.threads.reduce((sum, t) => sum + t._count.posts, 0),
+    };
+  }
+  return result;
+}
+
 export async function getThreadsForCategory(
   categorySlug: string,
   page: number = 1,

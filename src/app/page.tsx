@@ -3,8 +3,10 @@ import SearchBar from "@/components/ui/SearchBar";
 import CategoryCard from "@/components/ui/CategoryCard";
 import EmptyState from "@/components/ui/EmptyState";
 import { CATEGORIES } from "@/lib/categories";
+import { getCategoryStats } from "@/lib/threads";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const categoryStats = await getCategoryStats();
   return (
     <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white">
       {/* Hero */}
@@ -38,7 +40,11 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-zinc-200 border border-zinc-200 overflow-hidden" data-section="categories">
             {CATEGORIES.map((cat) => (
                <div key={cat.slug} className="bg-white">
-                 <CategoryCard category={cat} />
+                 <CategoryCard
+                   category={cat}
+                   threadCount={categoryStats[cat.slug]?.threadCount ?? 0}
+                   postCount={categoryStats[cat.slug]?.postCount ?? 0}
+                 />
                </div>
             ))}
           </div>
