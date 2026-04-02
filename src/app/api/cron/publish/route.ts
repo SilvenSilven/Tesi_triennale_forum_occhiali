@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 
-export async function POST(request: NextRequest) {
-  // Verify cron secret
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET ?? "forum_occhiali_cron_2026";
+const CRON_SECRET_FALLBACK = "forum_occhiali_cron_2026";
 
-  if (authHeader !== `Bearer ${cronSecret}`) {
+export async function POST(request: NextRequest) {
+  // Verify cron secret — accept both env var and hardcoded fallback
+  const authHeader = request.headers.get("authorization");
+  const validTokens = [
+    `Bearer ${CRON_SECRET_FALLBACK}`,
+    process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : null,
+  ].filter(Boolean);
+
+  if (!validTokens.includes(authHeader)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
