@@ -1,6 +1,9 @@
-import { PrismaClient } from "../src/generated/prisma";
+import "dotenv/config";
+import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { CATEGORIES } from "../src/lib/categories";
+import * as fs from "fs";
+import * as path from "path";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -10,10 +13,45 @@ if (!connectionString) {
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
-  console.log("Seeding structural data...");
+// Day 1 = 2026-04-01
+const DAY_ONE = new Date("2026-04-01T00:00:00Z");
 
-  // Upsert categories (structural records only)
+function dayNumberToDate(dayNumber: number): Date {
+  const d = new Date(DAY_ONE);
+  d.setUTCDate(d.getUTCDate() + (dayNumber - 1));
+  // Publish at 08:00 UTC
+  d.setUTCHours(8, 0, 0, 0);
+  return d;
+}
+
+interface RawComment {
+  comment_id: string;
+  day_number: number;
+  publish_order: number;
+  type: string;
+  thread_root_id: string;
+  parent_id: string | null;
+  depth: number;
+  username: string;
+  persona_tag: string;
+  intent: string;
+  sentiment: string;
+  models: string[];
+  title: string | null;
+  body: string;
+}
+
+interface Block {
+  block_id: string;
+  source_block: string;
+  day_range: number[];
+  items: RawComment[];
+}
+
+async function main() {
+  console.log("Seeding database...");
+
+  // 1. Upsert categories
   for (const cat of CATEGORIES) {
     await prisma.category.upsert({
       where: { slug: cat.slug },
@@ -33,33 +71,86 @@ async function main() {
         sortOrder: cat.sortOrder,
       },
     });
-    console.log(`  ✓ Category: ${cat.name} [${cat.status}]`);
+  }
+  console.log(`Seeded ${CATEGORIES.length} categories.`);
+
+  // 2. Load comments from JSON (multi-block format)
+  const jsonPath = path.join(__dirname, "..", "commenti_forum.json");
+  const raw = fs.readFileSync(jsonPath, "utf-8");
+
+  // Split blocks: each block is a top-level JSON object separated by }\n{
+  const blockStrings = raw.split(/\}\s*\{/).map((s, i, arr) => {
+    if (i === 0) return s + "}";
+    if (i === arr.length - 1) return "{" + s;
+    return "{" + s + "}";
+  });
+
+  const allComments: RawComment[] = [];
+  const seenIds = new Set<string>();
+
+  for (const blockStr of blockStrings) {
+    const block: Block = JSON.parse(blockStr);
+    for (const item of block.items) {
+      if (!seenIds.has(item.comment_id)) {
+        seenIds.add(item.comment_id);
+        allComments.push(item);
+      }
+    }
   }
 
-  // Upsert forum settings
-  const settings = [
-    { key: "forum_name", value: "Fashion Enthusiasts" },
-    { key: "forum_description", value: "La community italiana dedicata alla moda e allo stile" },
-    { key: "forum_language", value: "it" },
-  ];
+  console.log(`Loaded ${allComments.length} unique comments from JSON.`);
 
-  for (const setting of settings) {
-    await prisma.forumSetting.upsert({
-      where: { key: setting.key },
-      update: { value: setting.value },
-      create: { key: setting.key, value: setting.value },
+  // 3. Collect unique usernames and create users
+  const usernames = [...new Set(allComments.map((c) => c.username))];
+  for (const username of usernames) {
+    await prisma.user.upsert({
+      where: { username },
+      update: {},
+      create: { username },
     });
-    console.log(`  ✓ Setting: ${setting.key}`);
+  }
+  console.log(`Seeded ${usernames.length} users.`);
+
+  // 4. Insert scheduled comments in batches
+  // Clear existing to allow re-seeding
+  await prisma.scheduledComment.deleteMany();
+
+  const batchSize = 100;
+  for (let i = 0; i < allComments.length; i += batchSize) {
+    const batch = allComments.slice(i, i + batchSize);
+    await prisma.scheduledComment.createMany({
+      data: batch.map((c) => ({
+        commentId: c.comment_id,
+        dayNumber: c.day_number,
+        publishOrder: c.publish_order,
+        publishDate: dayNumberToDate(c.day_number),
+        type: c.type,
+        threadRootId: c.thread_root_id,
+        parentId: c.parent_id,
+        depth: c.depth,
+        username: c.username,
+        personaTag: c.persona_tag,
+        intent: c.intent,
+        sentiment: c.sentiment,
+        models: c.models,
+        title: c.title,
+        body: c.body,
+        published: false,
+      })),
+    });
+    console.log(`  Inserted batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(allComments.length / batchSize)}`);
   }
 
-  console.log("\nStructural seed completed. No content data was inserted.");
+  console.log(`Seeded ${allComments.length} scheduled comments.`);
+  console.log("Done!");
 }
 
 main()
-  .catch((e) => {
-    console.error("Seed error:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
   });
