@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/layout/Breadcrumb";
-import { getThreadBySlug, buildNestedPosts } from "@/lib/threads";
+import { getThreadBySlug, buildNestedPosts, incrementThreadViews } from "@/lib/threads";
 import { formatDateTime } from "@/lib/utils";
 import NestedReplies from "@/components/ui/NestedReplies";
 
@@ -27,6 +27,9 @@ export default async function ThreadDetailPage({ params }: Props) {
   if (!thread) {
     notFound();
   }
+
+  // Increment views once, only in the page component
+  await incrementThreadViews(thread.id);
 
   const nestedPosts = buildNestedPosts(thread.posts);
 

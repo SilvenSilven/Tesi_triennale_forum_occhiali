@@ -33,7 +33,7 @@ export async function getThreadsForCategory(
 }
 
 export async function getThreadBySlug(slug: string) {
-  const thread = await prisma.thread.findUnique({
+  return prisma.thread.findUnique({
     where: { slug },
     include: {
       author: { select: { id: true, username: true, avatar: true } },
@@ -45,16 +45,13 @@ export async function getThreadBySlug(slug: string) {
       },
     },
   });
+}
 
-  if (thread) {
-    // Increment views
-    await prisma.thread.update({
-      where: { id: thread.id },
-      data: { views: { increment: 1 } },
-    });
-  }
-
-  return thread;
+export async function incrementThreadViews(threadId: string) {
+  await prisma.thread.update({
+    where: { id: threadId },
+    data: { views: { increment: 1 } },
+  });
 }
 
 export type ThreadWithPosts = NonNullable<
