@@ -100,6 +100,7 @@ export async function publishScheduledComments() {
             models: comment.models,
             authorId: user.id,
             categoryId: category.id,
+            views: 1,
           },
         });
 
@@ -131,6 +132,13 @@ export async function publishScheduledComments() {
             threadId: threadDbId,
             parentId: parentPostId,
           },
+        });
+
+        // Ogni nuova reply aumenta le views del thread di 10-15
+        const viewsIncrement = Math.floor(Math.random() * 6) + 10;
+        await prisma.thread.update({
+          where: { id: threadDbId },
+          data: { views: { increment: viewsIncrement } },
         });
 
         commentIdToPostId.set(comment.commentId, post.id);
