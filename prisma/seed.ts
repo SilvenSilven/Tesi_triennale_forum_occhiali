@@ -19,8 +19,8 @@ const DAY_ONE = new Date("2026-04-01T00:00:00Z");
 function dayNumberToDate(dayNumber: number): Date {
   const d = new Date(DAY_ONE);
   d.setUTCDate(d.getUTCDate() + (dayNumber - 1));
-  // Publish at 08:00 UTC
-  d.setUTCHours(8, 0, 0, 0);
+  // Publish at 08:00 ora italiana (CEST = UTC+2) → 06:00 UTC
+  d.setUTCHours(6, 0, 0, 0);
   return d;
 }
 
